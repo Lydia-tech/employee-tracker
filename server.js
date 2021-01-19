@@ -256,7 +256,7 @@ async function addEmployee() {
       console.log("-----------------------");
       viewEmployees();
     }
-
+    async function start() 
     const answerEmployee = await inquirer.prompt({
         name: "employee",
         type: "list",
@@ -292,8 +292,14 @@ async function addEmployee() {
       console.log("-----------------------");
       viewEmployees();
     
-        
-    
+      async function myDisplay() {
+        let myPromise = new Promise(function(myResolve, myReject) {
+          myResolve("I love You !!");
+        });
+        document.getElementById("demo").innerHTML = await myPromise;
+      }
+      
+      myDisplay();    
     
   
   
