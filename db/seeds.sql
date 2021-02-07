@@ -1,4 +1,4 @@
-USE companyDB;
+USE company;
 
 INSERT INTO department (name)
 VALUES ('Engineering'), ('Finance'), ('Legal'), ('Sales');

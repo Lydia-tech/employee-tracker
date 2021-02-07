@@ -77,7 +77,8 @@ switch (answer.select) {
     
 // console.table everything in departments table
 async function viewDepartments() {
-    const sql = await queryAsync("SELECT * FROM departments");
+  
+    const sql = await queryAsync("SELECT * FROM department");
     const departments = [];
     console.log("");
     for (let i of sql) {
@@ -89,8 +90,9 @@ async function viewDepartments() {
   
   // console.table everything in roles table
   async function viewRoles() {
+    console.log("viewing roles");
     const sql = await queryAsync(
-      "SELECT roles.id, roles.title, roles.salary, departments.name FROM roles INNER JOIN departments ON roles.departmentID = departments.id"
+      "SELECT roles.id, roles.title, roles.salary, department.name FROM roles INNER JOIN department ON roles.department_id = department.id"
     );
     const roles = [];
     console.log("");
@@ -108,18 +110,20 @@ async function viewDepartments() {
   
 // console.table everything in employees table
 async function viewEmployees() {
+  console.log('hello');
     const sql = await queryAsync(
-      "SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employeeName, roles.title, roles.salary, CONCAT(m.firstName, ' ', m.lastName) AS managerName FROM employees e LEFT JOIN employees m ON m.id = e.managerID INNER JOIN roles ON e.roleID = roles.id"
+      "SELECT * FROM employee"
+      //"SELECT employee.id, CONCAT(employee.firstName, ' ', employee.lastName) AS employeeName, roles.title, roles.salary, CONCAT(m.firstName, ' ', m.lastName) AS managerName FROM employee e LEFT JOIN employee m ON m.id = employee.managerID INNER JOIN roles ON employee.roleID = roles.id"
     );
     const employees = [];
-    console.log("");
+    console.log(sql);
     for (let i of sql) {
       employees.push({
         ID: i.id,
-        NAME: i.employeeName,
-        ROLE: i.title,
-        SALARY: i.salary,
-        MANAGER: i.managerName,
+        NAME: `${i.first_name} ${i.last_name}`,
+        //ROLE: i.title,
+        //SALARY: i.salary,
+        //MANAGER: i.managerName,
       });
     }
     console.table(employees);
@@ -133,7 +137,7 @@ async function viewEmployees() {
       type: "input",
       message: "What is the name of the new department?",
     });
-    await queryAsync("INSERT INTO departments SET ?", {
+    await queryAsync("INSERT INTO department SET ?", {
       name: answer.newDepartment,
     });
     console.log("-------------------------");
@@ -144,7 +148,7 @@ async function viewEmployees() {
 
 // add new role to roles table
 async function addRole() {
-    const sql = await queryAsync("SELECT * FROM departments");
+    const sql = await queryAsync("SELECT * FROM department");
     const answer = await inquirer.prompt([
       {
         name: "newRole",
@@ -182,7 +186,7 @@ async function addRole() {
     await queryAsync("INSERT INTO roles SET ?", {
         title: answer.newRole,
         salary: answer.salary,
-        departmentID: departmentID,
+        department_id: departmentID,
       });
       console.log("-------------------");
       console.log("New role was added!");
@@ -195,12 +199,12 @@ async function addRole() {
       const sqlRole = await queryAsync("SELECT * FROM roles");
       const answerRole = await inquirer.prompt([
         {
-          name: "firstName",
+          name: "first_name",
           type: "input",
           message: "What is the new employee's first name?",
         },
         {
-          name: "lastName",
+          name: "last_name",
           type: "input",
           message: "What is the new employee's last name?",
         },
@@ -218,7 +222,7 @@ async function addRole() {
         },
       ]);
       const sqlEmployee = await queryAsync(
-        "SELECT employees.id, CONCAT(employees.firstName, ' ', employees.lastName) AS employeeName, employees.roleID, employees.managerID FROM employees"
+        "SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) AS employeeName, employee.role_id, employee.manager_id FROM employee"
       );
       const answerEmployee = await inquirer.prompt({
         name: "employee",
@@ -244,11 +248,11 @@ async function addRole() {
           managerID = i.id;
         }
       }
-      await queryAsync("INSERT INTO employees SET ?", {
-        firstName: answerRole.firstName,
-        lastName: answerRole.lastName,
-        roleID: roleID,
-        managerID: managerID,
+      await queryAsync("INSERT INTO employee SET ?", {
+        first_name: answerRole.firstName,
+        last_name: answerRole.lastName,
+        role_id: roleID,
+        manager_id: managerID,
       });
       console.log("-----------------------");
       console.log("New employee was added!");
@@ -258,7 +262,7 @@ async function addRole() {
    
 // delete department from departments table
 async function deleteDepartment() {
-    const sql = await queryAsync("SELECT * FROM departments");
+    const sql = await queryAsync("SELECT * FROM department");
     const answer = await inquirer.prompt({
       name: "deleteDepartment",
       type: "list",
@@ -272,7 +276,7 @@ async function deleteDepartment() {
       },
     });
   
-    await queryAsync("DELETE FROM departments WHERE ?", {
+    await queryAsync("DELETE FROM department WHERE ?", {
       name: answer.deleteDepartment,
     });
     console.log("-----------------------");
@@ -306,7 +310,7 @@ async function deleteDepartment() {
   
   // delete employee from employees table
   async function deleteEmployee() {
-    const sql = await queryAsync("SELECT employees.id, CONCAT(employees.firstName, ' ', employees.lastName) AS employeeName, employees.roleID, employees.managerID FROM employees");
+    const sql = await queryAsync("SELECT employee.id, CONCAT(employee.firstName, ' ', employee.lastName) AS employeeName, employee.roleID, employee.managerID FROM employee");
     const answer = await inquirer.prompt({
       name: "deleteEmployee",
       type: "list",
